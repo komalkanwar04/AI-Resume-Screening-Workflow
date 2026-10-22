@@ -267,7 +267,8 @@ def screen(resume_text: str, jd_text: str, mock: bool = False) -> Dict[str, Any]
         return _mock_screen(resume_text, jd_text)
 
     # Validate API key presence
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    raw_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = raw_key.strip().strip("\"'").strip()
     if not api_key or api_key == "your_key_here":
         raise ValueError(
             "ANTHROPIC_API_KEY environment variable is not set. "
@@ -303,6 +304,15 @@ def screen(resume_text: str, jd_text: str, mock: bool = False) -> Dict[str, Any]
             f"Authentication failed: The provided ANTHROPIC_API_KEY is invalid. "
             f"Please verify your API key. (Details: {exc.message})"
         ) from exc
+    except anthropic.BadRequestError as exc:
+        msg = exc.message.lower()
+        if "credit balance" in msg or "purchase credits" in msg:
+            raise RuntimeError(
+                "Anthropic credit balance is $0.00. "
+                "Please add a few dollars of credit in the Anthropic Console: "
+                "https://console.anthropic.com/settings/plans"
+            ) from exc
+        raise RuntimeError(f"Anthropic Bad Request Error: {exc.message}") from exc
     except anthropic.RateLimitError as exc:
         raise RuntimeError(
             f"Rate limit exceeded: Anthropic API rate limit reached. "
