@@ -1,0 +1,346 @@
+{
+  "name": "AI-Resume-Screening-Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "screen-resume",
+        "options": {
+          "responseMode": "onReceived"
+        }
+      },
+      "id": "1e8a4d70-5b12-4f32-8491-01a2b3c4d5e6",
+      "name": "Webhook Ingestion",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "screen-resume"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalizes input whether sent as JSON body or multipart binary PDF\nconst item = $input.first();\nconst body = item.json.body || item.json;\n\nlet resumeText = body.resume_text || '';\nlet candidateName = body.candidate_name || 'Anonymous Candidate';\nlet jdText = body.job_description || '';\nlet hasBinaryPdf = Boolean(item.binary && item.binary.resume_file);\n\nreturn [{\n  json: {\n    candidate_name: candidateName,\n    job_description: jdText,\n    resume_text: resumeText,\n    has_binary_pdf: hasBinaryPdf\n  },\n  binary: item.binary\n}];"
+      },
+      "id": "2b9c5e81-6c23-4e43-9502-12b3c4d5e6f7",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.has_binary_pdf }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "3c0d6f92-7d34-4f54-a613-23c4d5e6f7a8",
+      "name": "Is PDF Upload?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "resume_file",
+        "destinationKey": "extracted_pdf_text"
+      },
+      "id": "4d1e70a3-8e45-4065-b724-34d5e6f7a8b9",
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        860,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reconcile resume text from either raw text input or PDF extraction\nconst item = $input.first();\nconst extractedText = item.json.extracted_pdf_text || item.json.resume_text || '';\nconst candidateName = item.json.candidate_name || 'Anonymous Candidate';\nconst jdText = item.json.job_description || '';\n\nif (!extractedText.trim()) {\n  throw new Error('No resume text available for screening. Ensure resume_text is populated or a readable PDF was uploaded.');\n}\nif (!jdText.trim()) {\n  throw new Error('Target job description is empty. Please provide job_description in the payload.');\n}\n\n// Assemble Claude Prompt exactly matching screen.py\nconst prompt = `You are an expert AI technical recruiter and hiring evaluator.\nYour task is to objectively evaluate the candidate's resume against the target Job Description.\n\nEVALUATION CRITERIA:\n1. Technical Competencies: Compare candidate's proven skills, tools, and project work directly against required and preferred qualifications.\n2. Hands-on Experience: Prioritize actual implementation, system architecture, and project evidence over mere keyword mentions.\n3. Realistic Scoring Rubric:\n   - 85-100: Exceptional match. Has core required skills and directly relevant project experience. Recommendation: \"shortlist\".\n   - 50-84: Moderate/average match. Possesses foundational skills but lacks key domain tools or specific project experience. Recommendation: \"maybe\".\n   - 0-49: Weak match. Significant skill gaps, unrelated background, or missing critical prerequisites. Recommendation: \"reject\".\n\nSTRICT OUTPUT RULES:\n- Output MUST be valid, parseable JSON only.\n- Do NOT wrap in markdown explanations or prose outside the JSON.\n- Adhere strictly to this schema:\n  {\n    \"score\": <integer from 0 to 100>,\n    \"matched_skills\": [<list of specific skill strings matched from the JD>],\n    \"missing_skills\": [<list of specific skill strings required by JD but missing in resume>],\n    \"summary\": \"<concise summary explaining the evaluation, MAXIMUM 2 sentences>\",\n    \"recommendation\": \"<exactly one of: shortlist | maybe | reject>\"\n  }\n\n--- TARGET JOB DESCRIPTION ---\n${jdText}\n\n--- CANDIDATE RESUME ---\n${extractedText}`;\n\nreturn [{\n  json: {\n    candidate_name: candidateName,\n    job_description: jdText,\n    resume_text: extractedText,\n    prompt: prompt\n  }\n}];"
+      },
+      "id": "5e2f81b4-9f56-4176-c835-45e6f7a8b9c0",
+      "name": "Prepare LLM Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"model\": \"claude-3-5-sonnet-latest\",\n  \"max_tokens\": 1024,\n  \"system\": \"You are an automated resume screening engine. You evaluate technical candidates against job descriptions and return raw JSON strictly conforming to the requested schema.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.prompt) }}\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "6f3a92c5-a067-4287-d946-56f7a8b9c0d1",
+      "name": "Call Anthropic Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "anthropic-header-auth",
+          "name": "Anthropic API Key Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Safely parse and validate the JSON response returned by Claude\nconst item = $input.first().json;\nconst candidateName = $('Prepare LLM Payload').first().json.candidate_name;\n\n// Handle response structure from Anthropic Messages API\nlet rawText = '';\nif (item.content && Array.isArray(item.content) && item.content.length > 0) {\n  rawText = item.content[0].text || '';\n} else {\n  throw new Error(`Unexpected Anthropic response structure: ${JSON.stringify(item)}`);\n}\n\n// 1. Strip markdown fences if present\nlet cleaned = rawText.trim();\nconst fenceMatch = cleaned.match(/```(?:json)?\\s*([\\s\\S]*?)\\s*```/);\nif (fenceMatch) {\n  cleaned = fenceMatch[1].trim();\n}\n\n// 2. Parse JSON\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (err) {\n  throw new Error(`Failed to parse Claude output as JSON: ${err.message}. Raw text: ${rawText}`);\n}\n\n// 3. Schema validation\nconst requiredKeys = ['score', 'matched_skills', 'missing_skills', 'summary', 'recommendation'];\nfor (const key of requiredKeys) {\n  if (!(key in parsed)) {\n    throw new Error(`Screening JSON output missing required key: \"${key}\"`);\n  }\n}\n\n// Validate score bounds\nconst score = Number(parsed.score);\nif (isNaN(score) || score < 0 || score > 100) {\n  throw new Error(`Invalid score value: ${parsed.score}. Must be number between 0 and 100.`);\n}\n\n// Validate recommendation enum\nconst validRecs = ['shortlist', 'maybe', 'reject'];\nconst rec = String(parsed.recommendation).toLowerCase().trim();\nif (!validRecs.includes(rec)) {\n  throw new Error(`Invalid recommendation: \"${parsed.recommendation}\". Must be one of: ${validRecs.join(', ')}`);\n}\n\n// 4. Return flattened record ready for Google Sheets\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    candidate_name: candidateName,\n    score: Math.round(score),\n    recommendation: rec,\n    matched_skills: Array.isArray(parsed.matched_skills) ? parsed.matched_skills.join('; ') : String(parsed.matched_skills),\n    missing_skills: Array.isArray(parsed.missing_skills) ? parsed.missing_skills.join('; ') : String(parsed.missing_skills),\n    summary: String(parsed.summary || '').trim(),\n    status: 'SUCCESS'\n  }\n}];"
+      },
+      "id": "7a4b03d6-b178-4398-ea57-67a8b9c0d1e2",
+      "name": "Parse & Validate JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendRow",
+        "sheetId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "range": "Sheet1!A:G",
+        "options": {},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "candidate_name": "={{ $json.candidate_name }}",
+            "score": "={{ $json.score }}",
+            "recommendation": "={{ $json.recommendation }}",
+            "matched_skills": "={{ $json.matched_skills }}",
+            "missing_skills": "={{ $json.missing_skills }}",
+            "summary": "={{ $json.summary }}"
+          }
+        }
+      },
+      "id": "8b5c14e7-c289-44a9-fb68-78b9c0d1e2f3",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1740,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2": {
+          "id": "google-sheets-oauth2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "9c6d25f8-d39a-45ba-0c79-89c0d1e2f3a4",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formats pipeline failure details for audit logging\nconst errorData = $input.first().json;\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    failed_node: errorData.execution?.lastNodeExecuted || 'Unknown Node',\n    error_message: errorData.execution?.error?.message || 'Pipeline Execution Failure',\n    workflow_id: errorData.workflow?.id || 'AI-Resume-Screening-Pipeline',\n    execution_id: errorData.execution?.id || null\n  }\n}];"
+      },
+      "id": "0d7e3609-e4ab-46cb-1d8a-90d1e2f3a4b5",
+      "name": "Format Error Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendRow",
+        "sheetId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "range": "Errors!A:D",
+        "options": {},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "failed_node": "={{ $json.failed_node }}",
+            "error_message": "={{ $json.error_message }}",
+            "execution_id": "={{ $json.execution_id }}"
+          }
+        }
+      },
+      "id": "1e8f471a-f5bc-47dc-2e9b-01e2f3a4b5c6",
+      "name": "Log Error to Sheets (or Slack)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1520,
+        540
+      ],
+      "credentials": {
+        "googleSheetsOAuth2": {
+          "id": "google-sheets-oauth2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Ingestion": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Is PDF Upload?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is PDF Upload?": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare LLM Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text from PDF": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Payload": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic Claude API": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate JSON": {
+      "main": [
+        [
+          {
+            "node": "Append to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Error Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Payload": {
+      "main": [
+        [
+          {
+            "node": "Log Error to Sheets (or Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

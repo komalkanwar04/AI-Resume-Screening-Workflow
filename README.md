@@ -53,6 +53,9 @@ AI-Resume-Screening-Workflow/
 ├── create_sample_pdf.py      # Utility script to generate test PDF resumes
 ├── test_screen.py            # Complete test suite for parsers, validation, and CLI
 ├── sample_output.json        # Reference structured evaluation JSON
+├── n8n/                      # Stage 2 workflow definition and setup guide
+│   ├── README.md             # Node-by-node documentation & curl test commands
+│   └── workflow.json         # Importable n8n workflow definition
 └── samples/                  # Fictitious sample data for an "AI Intern" role
     ├── job_description.txt
     ├── resume_1_strong_alex_chen.txt
@@ -185,11 +188,17 @@ python3 -m unittest test_screen.py
   - Granular API error handling (auth, rate limits, network) with user-friendly messages.
   - Single-candidate CLI and folder batch mode exporting to `results.csv`.
   - Automated test suite covering parser edge cases and schema constraints.
-- [ ] **Stage 2 (Planned - n8n Webhook Workflow)**:
-  - Expose screening function as an HTTP webhook endpoint.
-  - Build n8n workflow triggered upon form submission or email reception.
-- [ ] **Stage 3 (Planned - Logging & Automations)**:
-  - Google Sheets API integration for real-time applicant logging.
+- [x] **Stage 2 (Workflow Architecture & Documentation Added)**:
+  - n8n workflow template designed (`n8n/workflow.json`).
+  - Webhook ingestion supporting both plain text JSON and binary PDF uploads.
+  - Native PDF text extraction configured.
+  - HTTP Request node configured for Anthropic API with header credential authentication.
+  - JavaScript Code node for schema validation, fence stripping, and score boundary checks.
+  - Google Sheets node schema mapping (`timestamp`, `candidate_name`, `score`, `recommendation`, `skills`, `summary`).
+  - Error Trigger branch configured for pipeline failure audit logging.
+  - Detailed setup guide, node specifications, and test `curl` commands in `n8n/README.md`.
+- [ ] **Stage 3 (Planned - Live Integration & Email Automations)**:
+  - User verification of n8n credentials against live Google Sheets and Anthropic accounts.
   - Automated personalized email draft generation based on `recommendation` and `missing_skills`.
   - Calendar integration for shortlist candidates (Calendly/Google Calendar API).
 
