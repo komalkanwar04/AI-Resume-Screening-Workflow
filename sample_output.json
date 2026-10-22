@@ -1,0 +1,19 @@
+{
+  "score": 92,
+  "matched_skills": [
+    "Python",
+    "Anthropic Claude API",
+    "n8n workflow automation",
+    "REST APIs and Webhooks",
+    "JSON data processing",
+    "pypdf document parsing",
+    "Prompt engineering",
+    "Git version control"
+  ],
+  "missing_skills": [
+    "Google Sheets API integration",
+    "Airtable direct webhook synchronization"
+  ],
+  "summary": "Alex Chen demonstrates exceptional alignment with the AI Engineering Intern role, featuring direct hands-on experience building Claude-powered screening pipelines and n8n webhook automations. Their strong background in Python, pypdf, and REST APIs makes them a high-conviction candidate ready to contribute immediately.",
+  "recommendation": "shortlist"
+}

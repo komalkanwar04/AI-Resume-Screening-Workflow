@@ -1,0 +1,31 @@
+ALEX CHEN
+San Francisco, CA | alex.chen.fake@example.com | github.com/alexchen-fake | linkedin.com/in/alexchen-fake
+
+OBJECTIVE:
+Computer Science undergraduate seeking an AI Engineering Internship to apply practical expertise in Python, Anthropic Claude API integrations, and n8n workflow automation to intelligent recruitment systems.
+
+EDUCATION:
+University of California, Berkeley
+B.S. in Computer Science | Expected May 2026
+Relevant Coursework: Data Structures & Algorithms, Artificial Intelligence, Web Architecture, Database Systems
+
+TECHNICAL SKILLS:
+- Languages: Python, JavaScript, SQL, Bash
+- AI & LLM Tooling: Anthropic Claude API, Prompt Engineering, Structured JSON Generation, OpenAI API
+- Workflow & Integration: n8n, Webhooks, RESTful APIs, Zapier, JSON Schema validation
+- Libraries & Tools: pypdf, Requests, FastAPI, Pandas, Git, Docker, Postman
+
+PROJECTS & EXPERIENCE:
+AI Candidate Screener & n8n Pipeline | Personal Project | Oct 2024 - Present
+- Architected a Python prototype that ingests candidate resumes (PDF/TXT), parses text using pypdf, and queries Claude Sonnet for automated rubric-based candidate evaluation.
+- Configured prompt templates enforcing deterministic JSON schema responses with matched/missing skills, confidence scores, and summaries.
+- Built an n8n webhook workflow to receive candidate submissions, trigger the Python screening endpoint, and dispatch status alerts to Slack and Airtable.
+
+Workflow Automation Fellow | Campus Tech Incubator | Jan 2024 - Sep 2024
+- Developed automated Python backend microservices integrating third-party SaaS tools via REST webhooks.
+- Improved processing throughput by 35% by implementing asynchronous request queuing and handling API rate limits gracefully.
+- Collaborated on establishing evaluation benchmarks for LLM response consistency and hallucination prevention.
+
+CERTIFICATIONS & HIGHLIGHTS:
+- Open-Source Contributor to workflow and API tooling
+- Anthropic Claude API Workshop Participant

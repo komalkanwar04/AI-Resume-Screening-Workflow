@@ -1,0 +1,30 @@
+SAMIRA KHAN
+Seattle, WA | samira.khan.fake@example.com | github.com/samirakhan-fake | linkedin.com/in/samirakhan-fake
+
+OBJECTIVE:
+Software Engineering student with practical experience building web applications and no-code automations, eager to transition into applied AI workflows and intelligent recruitment tooling.
+
+EDUCATION:
+University of Washington
+B.S. in Software Engineering | Expected June 2026
+Relevant Coursework: Web Development, Cloud Computing, Object-Oriented Software Construction
+
+TECHNICAL SKILLS:
+- Languages: JavaScript, TypeScript, Python (Intermediate), HTML/CSS, SQL
+- Web Frameworks: Node.js, Express, React, RESTful API design
+- Automation & Tools: Zapier, Airtable, Postman, Webhooks, Git, GitHub Actions
+
+PROJECTS & EXPERIENCE:
+Student Club CRM & Notification Workflow | Independent Project | Feb 2024 - Present
+- Created a Zapier workflow connecting Google Forms submissions with Discord webhooks and Airtable tracking for 400+ members.
+- Wrote Node.js microservices to validate and sanitize JSON payloads before pushing updates to downstream services.
+- Added basic Python scripts to parse spreadsheet exports and automate reminder emails.
+
+Frontend & Web Ops Intern | NorthWest Digital Studio | Jun 2023 - Dec 2023
+- Built responsive client dashboards using React and consumed REST APIs returning structured JSON data.
+- Configured automated webhook triggers between form builders and third-party CRM databases.
+- Assisted engineering team with Git version control, pull requests, and automated testing.
+
+NOTABLE HIGHLIGHTS:
+- Strong understanding of webhooks and API payloads
+- Eager to master low-code workflow engines like n8n and generative AI SDKs

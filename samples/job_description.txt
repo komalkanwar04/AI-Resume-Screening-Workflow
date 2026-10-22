@@ -1,0 +1,27 @@
+JOB TITLE: AI Engineering Intern - Recruitment Automation
+COMPANY: TalentFlow AI (Sample Organization)
+LOCATION: Remote / Hybrid
+EMPLOYMENT TYPE: Internship (Summer / Fall)
+
+ABOUT THE ROLE:
+TalentFlow AI is building modern automation workflows to streamline technical recruitment. We are looking for an AI Engineering Intern passionate about LLMs, autonomous workflows, and practical Python engineering to help develop our candidate screening pipeline. In this role, you will help build reliable pipelines connecting Claude (Anthropic API), n8n workflow automations, and recruitment data stores.
+
+KEY RESPONSIBILITIES:
+- Ingest candidate resumes in multiple formats (TXT, PDF) and extract relevant career data.
+- Integrate the Anthropic Claude API to evaluate candidate qualifications against job requirements.
+- Design prompt templates that reliably produce structured JSON outputs with confidence scores, skill matching, and executive summaries.
+- Build and maintain n8n workflows that listen for incoming application webhooks and sync evaluated scores to Google Sheets.
+- Implement robust error handling, rate-limit awareness, and input validation to maintain high pipeline uptime.
+
+REQUIRED QUALIFICATIONS:
+- Proficient in Python (object-oriented programming, data structures, REST requests, file parsing).
+- Hands-on experience with the Anthropic Claude API or comparable LLM APIs.
+- Experience with low-code/no-code workflow automation tools (n8n preferred, or Make/Zapier).
+- Solid grasp of REST APIs, webhook architectures, and JSON serialization.
+- Familiarity with version control using Git.
+
+PREFERRED / NICE-TO-HAVE:
+- Experience extracting text from document formats (PDF parsing with pypdf, pdfplumber, or similar).
+- Experience integrating Google Sheets API or Airtable via webhooks.
+- Understanding of ethical AI principles and bias reduction in automated screening systems.
+- Strong written and verbal communication skills.

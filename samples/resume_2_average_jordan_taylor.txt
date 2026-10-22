@@ -1,0 +1,30 @@
+JORDAN TAYLOR
+Austin, TX | jordan.taylor.fake@example.com | github.com/jordantaylor-fake | linkedin.com/in/jordantaylor-fake
+
+OBJECTIVE:
+Motivated Data Science student looking for an AI internship where I can apply my Python programming and machine learning modeling background to real-world software applications.
+
+EDUCATION:
+University of Texas at Austin
+B.S. in Data Science & Statistics | Expected Dec 2025
+Relevant Coursework: Machine Learning, Statistical Inference, Deep Learning Fundamentals, Linear Algebra
+
+TECHNICAL SKILLS:
+- Languages: Python, R, SQL
+- Machine Learning & Data: scikit-learn, PyTorch, Pandas, NumPy, Matplotlib, Jupyter Notebooks
+- Developer Tools: Git, Linux, Docker (basic), Flask
+
+PROJECTS & EXPERIENCE:
+Job Market Trend Classifier | Academic Capstone | Jan 2024 - May 2024
+- Built a scikit-learn text classification model to categorize 5,000 online job postings into industry sectors using TF-IDF feature extraction.
+- Achieved 82% F1-score across 8 job categories and visualized salary trends using Pandas and Seaborn.
+- Packaged the inference script into a lightweight Flask REST API for demonstration purposes.
+
+Data Science Intern | Apex Retail Analytics | Jun 2023 - Aug 2023
+- Cleaned and prepared large transactional datasets (over 2 million rows) using Python and SQL.
+- Created automated weekly data summary scripts scheduled via Linux cron jobs.
+- Explored open-source Hugging Face models for customer review sentiment tagging.
+
+NOTABLE HIGHLIGHTS:
+- Solid analytical and mathematical foundation
+- Actively learning workflow automation and cloud-based LLM architectures
