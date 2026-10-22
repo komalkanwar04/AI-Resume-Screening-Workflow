@@ -40,7 +40,7 @@ import anthropic
 # Configuration
 # ---------------------------------------------------------------------------
 # Model constant defined at the top of the file for quick updates
-MODEL_NAME = "claude-sonnet-5-5"
+MODEL_NAME = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 
 # Required JSON keys and constraints
 REQUIRED_KEYS = {"score", "matched_skills", "missing_skills", "summary", "recommendation"}

@@ -65,6 +65,8 @@ def create_pdf(output_path: Path):
         f.write(full_pdf)
 
 if __name__ == "__main__":
-    out = Path("samples/resume_1_strong_alex_chen.pdf")
+    out_dir = Path("samples/pdf_test")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / "resume_1_strong_alex_chen.pdf"
     create_pdf(out)
     print(f"Created sample PDF at: {out}")

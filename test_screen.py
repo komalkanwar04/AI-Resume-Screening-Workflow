@@ -28,7 +28,7 @@ class TestResumeScreening(unittest.TestCase):
         cls.samples_dir = Path("samples")
         cls.jd_file = cls.samples_dir / "job_description.txt"
         cls.alex_txt = cls.samples_dir / "resume_1_strong_alex_chen.txt"
-        cls.alex_pdf = cls.samples_dir / "resume_1_strong_alex_chen.pdf"
+        cls.alex_pdf = cls.samples_dir / "pdf_test" / "resume_1_strong_alex_chen.pdf"
         cls.jordan_txt = cls.samples_dir / "resume_2_average_jordan_taylor.txt"
         cls.samira_txt = cls.samples_dir / "resume_3_average_samira_khan.txt"
         cls.morgan_txt = cls.samples_dir / "resume_4_weak_morgan_reed.txt"
@@ -163,7 +163,7 @@ class TestResumeScreening(unittest.TestCase):
                 mock=True,
             )
             self.assertTrue(test_csv.exists())
-            self.assertGreaterEqual(len(results), 4)
+            self.assertEqual(len(results), 4)
 
             # Check that results.csv has valid columns
             with open(test_csv, "r", encoding="utf-8") as f:
